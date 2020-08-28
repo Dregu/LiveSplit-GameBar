@@ -8,4 +8,4 @@ Requires https://github.com/LiveSplit/LiveSplit.Server running on localhost in t
 
 ## Installation
 
-I don't have a store dev account so it's not on store. You can build it in VS2019 or maybe install the test release (it's self signed, figure it out) if you manage to trust the packages certificate (add to "Trusted people" maybe? I dunno.)
+I don't have a store dev account so it's not in widget store. You can build it in VS2019 or maybe install the test release (it's self signed, figure it out) if you manage to trust the packages certificate (add to "Trusted people" maybe? I dunno.)
