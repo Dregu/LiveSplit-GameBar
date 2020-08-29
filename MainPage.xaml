@@ -10,28 +10,62 @@
     Name="Page_Main">
 
     <StackPanel Orientation="Vertical" 
-				HorizontalAlignment="Left"
-				VerticalAlignment="Center" Height="42">
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock
-				Margin="8,-2,0,0"
-				Text="0:00:00" 
-				TextWrapping="Wrap" 
-				VerticalAlignment="Top"
-				FontSize="36"
-                FontFamily="Calibri"
-                FontWeight="Bold"
-				x:Name="MainText" Height="40">
-            </TextBlock>
-            <TextBlock
-				Margin="0,13,0,0" 
-				Text=".00" 
-				TextWrapping="Wrap"
-				VerticalAlignment="Top"
-				FontSize="20"
-                FontFamily="Calibri"
-                FontWeight="Bold"
-				x:Name="MilliText" Height="24" />
+				HorizontalAlignment="Right"
+				VerticalAlignment="Top" Height="1000" Width="320">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0" Width="310">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top" Width="160">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock FontWeight="Bold" Text="Last Segment:" Width="100"/>
+                    <TextBlock FontWeight="Bold" x:Name="PreviousSegment" Text="" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                    <TextBlock FontWeight="Bold" Text="Live Segment:" Width="100" />
+                    <TextBlock FontWeight="Bold" x:Name="LiveSegment" Text="" />
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Width="150">
+                <TextBlock
+                    Width="125"
+				    Margin="0,-2,0,0"
+				    Text="1:00:00" 
+				    TextWrapping="NoWrap"
+                    TextAlignment="Right"
+				    VerticalAlignment="Top"
+				    FontSize="36"
+                    FontFamily="Calibri"
+                    FontWeight="Bold"
+				    x:Name="MainText" Height="40" />
+                <TextBlock
+                    Width="30"
+				    Margin="0,13,0,0" 
+				    Text=".00" 
+				    TextWrapping="Wrap"
+				    VerticalAlignment="Top"
+				    FontSize="20"
+                    FontFamily="Calibri"
+                    FontWeight="Bold"
+				    x:Name="MilliText" Height="30" />
+            </StackPanel>
         </StackPanel>
+        <ItemsControl Name="SplitPanel" ItemsSource="{Binding splits}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,10" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel x:Name="SplitItem" Background="{Binding background}" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding name}" FontSize="16" FontWeight="Bold" Height="24" Width="150" />
+                        <TextBlock Text="{Binding panelDelta}" Foreground="{Binding color}" FontSize="16" FontWeight="Bold" Height="24" Width="65" TextAlignment="Right" />
+                        <TextBlock Text="{Binding panelTime}" FontSize="16" FontWeight="Bold" Height="24" Width="95" TextAlignment="Right" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock x:Name="Help" TextAlignment="Center" TextWrapping="Wrap" Width="320">
+            You need LiveSplit and LiveSplit WebSocket to use this widget.<LineBreak/><LineBreak/>
+            Add LiveSplit Websocket to your layout and Start Server (WS) in the Control menu!
+        </TextBlock>
     </StackPanel>
 </Page>
