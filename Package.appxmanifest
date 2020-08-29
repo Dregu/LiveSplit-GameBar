@@ -9,7 +9,7 @@
 	<Identity
 		Name="Dregu.LiveSplitWidgetforXboxGamebar"
 		Publisher="CN=Dregu"
-		Version="1.0.2.0" />
+		Version="1.0.3.0" />
 
 	<mp:PhoneIdentity PhoneProductId="e3a98a07-4661-447c-9526-404eb9665b7b" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
