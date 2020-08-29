@@ -5,8 +5,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Windows.UI.Core;
+using Windows.UI.Text.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -14,7 +16,7 @@ using Windows.UI.Xaml.Navigation;
 namespace LiveSplit
 {
 	/// <summary>
-	/// An empty page that can be used on its own or navigated to within a Frame.
+	/// LiveSplit current time component
 	/// </summary>
 	public sealed partial class MainPage : Page
 	{
@@ -25,39 +27,62 @@ namespace LiveSplit
 		int recv;
 		TcpClient server;
 		NetworkStream ns;
+		bool connected = false;
 
 		public MainPage()
 		{
 			this.InitializeComponent();
 
-			try
-			{
-				server = new TcpClient("127.0.0.1", 16834);
-			}
-			catch (SocketException)
-			{
-				widget.Close();
-				return;
-			}
+			Connect();
 
-			ns = server.GetStream();
 			dispatcherTimer = new DispatcherTimer();
 			dispatcherTimer.Tick += DispatcherTimer_Tick;
-			dispatcherTimer.Interval = TimeSpan.FromMilliseconds(100);
+			dispatcherTimer.Interval = TimeSpan.FromMilliseconds(16);
 
 			dispatcherTimer.Start();
 		}
 
+		private void Connect()
+        {
+			connected = false;
+			try
+			{
+				server = new TcpClient("127.0.0.1", 16834);
+				ns = server.GetStream();
+				ns.ReadTimeout = 100;
+				connected = true;
+			}
+			catch (Exception ex)
+			{
+				connected = false;
+				Connect();
+			}
+		}
+
 		private void DispatcherTimer_Tick(object sender, object e)
 		{
-			ns.Write(Encoding.ASCII.GetBytes(input), 0, input.Length);
-			ns.Flush();
-			data = new byte[1024];
-			recv = ns.Read(data, 0, data.Length);
-			stringData = Encoding.ASCII.GetString(data, 0, recv);
-			string[] time = stringData.Split(".");
-			MainText.Text = time[0];
-			MilliText.Text = "."+time[1];
+			if (!connected) return;
+			try
+			{
+				// get current time
+				ns.Write(Encoding.ASCII.GetBytes(input), 0, input.Length);
+				ns.Flush();
+				data = new byte[32];
+				recv = ns.Read(data, 0, data.Length);
+				stringData = Encoding.ASCII.GetString(data, 0, recv);
+				string[] time = stringData.Split(".");
+				MainText.Text = time[0];
+				if (time.Length > 1)
+					MilliText.Text = "." + time[1];
+				else
+					MilliText.Text = "";
+			}
+			catch (Exception ex)
+			{
+				Connect();
+				return;
+			}
+
 		}
 
 		protected override void OnNavigatedTo(NavigationEventArgs e)
