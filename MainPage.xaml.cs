@@ -34,13 +34,13 @@ namespace LiveSplit
 		SolidColorBrush red = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(255, 204, 0, 0));
 		SolidColorBrush gold = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(255, 255, 212, 0));
 		SolidColorBrush current = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(33, 255, 255, 255));
-		SolidColorBrush transparent = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(0,0,0,0));
+		SolidColorBrush transparent = new SolidColorBrush(Windows.UI.ColorHelper.FromArgb(0, 0, 0, 0));
 
 		public class Timer
-        {
+		{
 			public string name { get; set; }
 			public double data { get; set; }
-        }
+		}
 		double currentTime = 0;
 		public class Index
 		{
@@ -54,6 +54,13 @@ namespace LiveSplit
 			public string data { get; set; }
 		}
 		string currentComparison = "Personal Best";
+		public class Phase
+		{
+			public string name { get; set; }
+			public string data { get; set; }
+		}
+		string currentPhase = "";
+
 		public class Split : INotifyPropertyChanged
 		{
 			public event PropertyChangedEventHandler PropertyChanged;
@@ -309,7 +316,7 @@ namespace LiveSplit
 		}
 
 		private string FormatTimer(double ms)
-        {
+		{
 			TimeSpan ts = TimeSpan.FromMilliseconds(ms);
 			string time = ts.ToString(@"d\d\ hh\:mm\:ss\.ff");
 			time = Regex.Replace(time, "0d ", "");
@@ -335,10 +342,10 @@ namespace LiveSplit
 			string time = ts.ToString(@"d\d\ hh\:mm\:ss\.f");
 			time = Regex.Replace(time, "0d ", "");
 			time = time.TrimStart(new Char[] { '0', ':' });
-			if(Math.Abs(ms) > 60000)
-            {
+			if (Math.Abs(ms) > 60000)
+			{
 				time = time.Substring(0, time.Length - 2);
-            }
+			}
 			if (Math.Abs(ms) < 1000) time = "0" + time;
 			if (ms < 0) time = "-" + time;
 			else time = "+" + time;
@@ -346,7 +353,7 @@ namespace LiveSplit
 		}
 
 		private void UpdateSplit(int i)
-        {
+		{
 			if (currentComparison == "Personal Best")
 			{
 				if (splits[i].splitTime > 0) splits[i].delta = splits[i].splitTime - splits[i].personalBestSplitTime;
@@ -365,7 +372,7 @@ namespace LiveSplit
 				splits[i].panelDelta = "";
 			if (i == currentSplit)
 				splits[i].background = current;
-			
+
 			splits[i].color = (splits[i].delta > 0 ? red : green);
 			double segmentTime = splits[i].splitTime > 0 ? splits[i].splitTime : splits[i].currentTime;
 			if (i > 0) segmentTime -= splits[i - 1].splitTime;
@@ -385,14 +392,14 @@ namespace LiveSplit
 					{
 						string read = reader.ReadString(reader.UnconsumedBufferLength);
 						//AppendOutputLine(read);
-						if (read.Contains("getcurrenttime"))
-                        {
+						if (read.Contains("\"getcurrenttime\""))
+						{
 							Timer data = Deserialize<Timer>(read);
 							currentTime = data.data;
 							string timer = FormatTimer(data.data);
 							string[] time = timer.Split('.');
 							MainText.Text = time[0];
-							MilliText.Text = "."+time[1];
+							MilliText.Text = "." + time[1];
 
 							if (currentSplit >= 0 && currentSplit < splits.Count)
 							{
@@ -408,16 +415,16 @@ namespace LiveSplit
 								LiveSegment.Foreground = (liveSegmentTime > 0 ? red : green);
 							}
 						}
-						if (read.Contains("getsplitindex"))
+						else if (read.Contains("\"getsplitindex\""))
 						{
 							Index data = Deserialize<Index>(read);
-							if(currentSplit >= 0 && currentSplit < data.data)
-                            {
+							if (currentSplit >= 0 && currentSplit < data.data)
+							{
 								PreviousSegment.Text = FormatDelta(splits[currentSplit].delta);
 								PreviousSegment.Foreground = splits[currentSplit].color;
 							}
 							if (data.data != currentSplit)
-                            {
+							{
 								Send("getsplits");
 							}
 							if (data.data < 0 && currentSplit != data.data)
@@ -429,23 +436,28 @@ namespace LiveSplit
 							}
 							currentSplit = data.data;
 						}
-						if (read.Contains("getcomparison"))
+						else if (read.Contains("\"getcomparison\""))
 						{
 							Comparison data = Deserialize<Comparison>(read);
 							if (currentComparison != data.data)
-                            {
+							{
 								Send("getsplits");
-                            }
+							}
 							currentComparison = data.data;
 						}
-						if (read.Contains("getsplits"))
+						else if (read.Contains("\"getcurrenttimerphase\""))
+						{
+							Phase data = Deserialize<Phase>(read);
+							currentPhase = data.data;
+						}
+						else if (read.Contains("\"getsplits\""))
 						{
 							Splits data = Deserialize<Splits>(read);
 							splits.Clear();
 							int i = 0;
 							double segmentSum = 0;
-							foreach(Split split in data.data)
-                            {
+							foreach (Split split in data.data)
+							{
 								if (currentComparison == "Personal Best")
 								{
 									split.delta = split.splitTime - split.personalBestSplitTime;
@@ -456,7 +468,7 @@ namespace LiveSplit
 									split.panelTime = FormatSplit(segmentSum + split.bestSegmentTime);
 								}
 								split.panelDelta = FormatDelta(split.delta);
-								
+
 								segmentSum += split.bestSegmentTime;
 								split.index = i;
 								split.segmentSum = segmentSum;
@@ -533,6 +545,7 @@ namespace LiveSplit
 			if (!wsConnected) return;
 			Send("getcurrenttime");
 			Send("getsplitindex");
+			Send("getcurrenttimerphase");
 		}
 
 		private void ReconnectTimer_Tick(object sender, object e)
@@ -547,7 +560,10 @@ namespace LiveSplit
 
 			// subscribe for RequestedOpacityChanged events
 			if (widget != null)
+			{
 				widget.RequestedOpacityChanged += Widget_RequestedOpacityChanged;
+				widget.GameBarDisplayModeChanged += Widget_GameBarDisplayModeChanged;
+			}
 		}
 
 		private async void Widget_RequestedOpacityChanged(XboxGameBarWidget sender, object args)
@@ -555,9 +571,46 @@ namespace LiveSplit
 			// be sure to dispatch to the correct UI thread for this widget, Game Bar events are not guaranteed to come in on the same thread.
 			await Page_Main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
-				// adjust the opacity of your background as appropriate
-				Background.Opacity = widget.RequestedOpacity;
+				MainPanel.Background.Opacity = widget.RequestedOpacity;
 			});
+		}
+		private async void Widget_GameBarDisplayModeChanged(XboxGameBarWidget sender, object args)
+		{
+			// be sure to dispatch to the correct UI thread for this widget, Game Bar events are not guaranteed to come in on the same thread.
+			await Page_Main.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+			{
+				XboxGameBarDisplayMode mode = widget.GameBarDisplayMode;
+				if (mode == XboxGameBarDisplayMode.Foreground)
+				{
+					Controls.Visibility = Visibility.Visible;
+				}
+				else
+				{
+					Controls.Visibility = Visibility.Collapsed;
+				}
+			});
+		}
+
+		private async void ResetClicked(object sender, RoutedEventArgs e)
+		{
+			Send("reset");
+		}
+
+		private async void PauseClicked(object sender, RoutedEventArgs e)
+		{
+			if (currentPhase == "Paused")
+			{
+				Send("resume");
+			}
+			else
+			{
+				Send("pause");
+			}
+		}
+
+		private async void SplitClicked(object sender, RoutedEventArgs e)
+		{
+			Send("startorsplit");
 		}
 
 	}

@@ -6,12 +6,10 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
-    Background="{ThemeResource SystemControlAcrylicElementBrush}"
+    Background="Transparent"
     Name="Page_Main">
 
-    <StackPanel Orientation="Vertical" 
-				HorizontalAlignment="Right"
-				VerticalAlignment="Top" Height="1000" Width="320">
+    <StackPanel x:Name="MainPanel" Background="{ThemeResource SystemControlAcrylicElementBrush}" Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top" Height="Auto" Width="320">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,0" Width="310">
             <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top" Width="160">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
@@ -50,7 +48,7 @@
         <ItemsControl Name="SplitPanel" ItemsSource="{Binding splits}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,10" />
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,10,0,0" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
@@ -67,5 +65,10 @@
             You need LiveSplit and LiveSplit WebSocket to use this widget.<LineBreak/><LineBreak/>
             Add LiveSplit Websocket to your layout and Start Server (WS) in the Control menu!
         </TextBlock>
+        <StackPanel x:Name="Controls" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Margin="5" Click="ResetClicked">Reset</Button>
+            <Button Margin="5" Click="PauseClicked" x:Name="PauseButton">Pause</Button>
+            <Button Margin="5" Click="SplitClicked">Split</Button>
+        </StackPanel>
     </StackPanel>
 </Page>

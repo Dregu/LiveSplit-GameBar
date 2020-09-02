@@ -3,7 +3,7 @@ LiveSplit speedrun timer overlay widget for Windows 10 Xbox Game Bar
 
 Requires https://github.com/Xenira/LiveSplit-Websocket running on localhost in the default port (16835) so read the instructions for that first.
 Shows current time and splits with colored deltas, comparing to your personal best or best segments.
-There's no controls or settings, it just shows you what livesplit is doing, but right in your face.
+There's some simple controls too, not visible in pinned mode.
 Make it opaque or transparent in the xbox settings.
 Resize the window to only show the parts you need.
 Doesn't show up on OBS game capture, so this is not for streaming.
